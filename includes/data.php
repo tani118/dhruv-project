@@ -57,5 +57,5 @@ function get_products()
 function get_product($id)
 {
     $products = get_products();
-    return $products[$id] ?? null;
+    return $products[$id];
 }

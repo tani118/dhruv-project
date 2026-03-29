@@ -79,7 +79,7 @@ function login_user($email, $password)
 
 function current_user()
 {
-    return $_SESSION['user'] ?? null;
+    return $_SESSION['user'];
 }
 
 function logout_user()

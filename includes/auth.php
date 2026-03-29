@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$usersFile = __DIR__ . '/../data/users.json';
+$usersFile = __DIR__ . '/../users.json';
 
 function read_users($usersFile)
 {

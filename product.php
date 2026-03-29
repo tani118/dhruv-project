@@ -1,84 +1,118 @@
 <?php
-session_start();
+require_once 'includes/auth.php';
+require_once 'includes/data.php';
 
-$products = [
-    'iphone' => ['name' => 'iPhone 15', 'colors' => ['Black', 'Blue', 'Pink'], 'storage' => ['128GB', '256GB', '512GB'], 'prices' => [79900, 89900, 109900], 'image' => 'iphone.jpg'],
-    'ipad' => ['name' => 'iPad Air', 'colors' => ['Gray', 'Blue'], 'storage' => ['64GB', '256GB'], 'prices' => [59900, 74900], 'image' => 'ipad.jpg'],
-    'macbook' => ['name' => 'MacBook Air', 'colors' => ['Silver', 'Midnight'], 'storage' => ['256GB', '512GB'], 'prices' => [109900, 129900], 'image' => 'macbook.jpg'],
-    'airpods' => ['name' => 'AirPods Pro', 'colors' => ['White'], 'storage' => ['Standard'], 'prices' => [24900], 'image' => 'airpods.jpg']
-];
-
-$user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+$user = current_user();
 if (!$user) {
     header('Location: login.php');
     exit;
 }
 
 $id = $_GET['id'];
-$product = $products[$id];
+$product = get_product($id);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_SESSION['cart'])) {
+        $_SESSION['cart'] = [];
+    }
+    
+    $item = [
+        'product_id' => $id,
+        'name' => $product['name'],
+        'image' => $product['image'],
+        'color' => $_POST['color'],
+        'storage' => $product['storage_options'][$_POST['storage_index']]['storage'],
+        'ram' => $product['storage_options'][$_POST['storage_index']]['ram'],
+        'warranty' => $product['warranty'][$_POST['warranty_index']],
+        'price' => $product['storage_options'][$_POST['storage_index']]['price'] + $product['warranty_prices'][$_POST['warranty_index']]
+    ];
+    
+    $_SESSION['cart'][] = $item;
+    header('Location: cart.php');
+    exit;
+}
 ?>
 <html>
 <head>
 <title><?php echo $product['name']; ?></title>
-<style>
-body { margin: 0; font-family: Arial; background: white; color: black; }
-header { background: black; color: white; padding: 10px; }
-header a { color: white; text-decoration: none; margin-right: 15px; }
-.container { width: 90%; margin: 0 auto; padding: 20px; }
-.product { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.product img { width: 100%; height: 300px; object-fit: contain; }
-select { padding: 5px; margin: 10px 0; border: 1px solid black; }
-.info { border: 1px solid black; padding: 10px; margin-top: 20px; }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
 <div class="container">
+<img src="apple-logo.svg" width="20" style="vertical-align: middle;">
+<a href="index.php">Apple Market</a>
 <a href="index.php">Home</a>
 <a href="products.php">Products</a>
+<a href="cart.php">Cart (<?php echo isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0; ?>)</a>
 <span>Hi, <?php echo $user['name']; ?></span>
 <a href="logout.php">Logout</a>
 </div>
 </header>
 <div class="container">
+<form method="post">
 <div class="product">
 <div>
-<img src="<?php echo $product['image']; ?>">
+<img src="<?php echo $product['image']; ?>" class="product-img">
 </div>
 <div>
 <h1><?php echo $product['name']; ?></h1>
+<p><?php echo $product['description']; ?></p>
 <label>Color:</label><br>
-<select id="colorSelect">
+<select name="color" id="colorSelect">
 <?php foreach ($product['colors'] as $color): ?>
 <option><?php echo $color; ?></option>
 <?php endforeach; ?>
 </select><br>
 <label>Storage:</label><br>
-<select id="storageSelect">
-<?php foreach ($product['storage'] as $i => $storage): ?>
-<option value="<?php echo $i; ?>"><?php echo $storage; ?></option>
+<select name="storage_index" id="storageSelect">
+<?php foreach ($product['storage_options'] as $i => $opt): ?>
+<option value="<?php echo $i; ?>"><?php echo $opt['storage']; ?> (<?php echo $opt['ram']; ?> RAM)</option>
+<?php endforeach; ?>
+</select><br>
+<label>Warranty:</label><br>
+<select name="warranty_index" id="warrantySelect">
+<?php foreach ($product['warranty'] as $i => $w): ?>
+<option value="<?php echo $i; ?>"><?php echo $w; ?> <?php echo $product['warranty_prices'][$i] > 0 ? '(+₹' . $product['warranty_prices'][$i] . ')' : ''; ?></option>
 <?php endforeach; ?>
 </select>
 <div class="info">
 <p><b>Color:</b> <span id="selectedColor"><?php echo $product['colors'][0]; ?></span></p>
-<p><b>Storage:</b> <span id="selectedStorage"><?php echo $product['storage'][0]; ?></span></p>
-<p><b>Price:</b> ₹<span id="selectedPrice"><?php echo $product['prices'][0]; ?></span></p>
+<p><b>Storage:</b> <span id="selectedStorage"><?php echo $product['storage_options'][0]['storage']; ?></span></p>
+<p><b>RAM:</b> <span id="selectedRam"><?php echo $product['storage_options'][0]['ram']; ?></span></p>
+<p><b>Warranty:</b> <span id="selectedWarranty"><?php echo $product['warranty'][0]; ?></span></p>
+<p><b>Total Price:</b> ₹<span id="selectedPrice"><?php echo $product['storage_options'][0]['price']; ?></span></p>
+</div>
+<button type="submit">Add to Cart</button>
 </div>
 </div>
-</div>
+</form>
 </div>
 <script>
-var prices = <?php echo json_encode($product['prices']); ?>;
-var storage = <?php echo json_encode($product['storage']); ?>;
+var productData = <?php echo json_encode($product['storage_options']); ?>;
+var warrantyData = <?php echo json_encode($product['warranty']); ?>;
+var warrantyPrices = <?php echo json_encode($product['warranty_prices']); ?>;
+
+var currentStoragePrice = productData[0].price;
+var currentWarrantyPrice = 0;
 
 document.getElementById('colorSelect').addEventListener('change', function() {
     document.getElementById('selectedColor').textContent = this.value;
 });
 
 document.getElementById('storageSelect').addEventListener('change', function() {
+    var opt = productData[this.value];
+    document.getElementById('selectedStorage').textContent = opt.storage;
+    document.getElementById('selectedRam').textContent = opt.ram;
+    currentStoragePrice = opt.price;
+    document.getElementById('selectedPrice').textContent = currentStoragePrice + currentWarrantyPrice;
+});
+
+document.getElementById('warrantySelect').addEventListener('change', function() {
     var index = this.value;
-    document.getElementById('selectedStorage').textContent = storage[index];
-    document.getElementById('selectedPrice').textContent = prices[index];
+    document.getElementById('selectedWarranty').textContent = warrantyData[index];
+    currentWarrantyPrice = warrantyPrices[index];
+    document.getElementById('selectedPrice').textContent = currentStoragePrice + currentWarrantyPrice;
 });
 </script>
 </body>

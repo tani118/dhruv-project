@@ -1,18 +1,15 @@
 <?php
 require_once 'includes/auth.php';
-require_once 'includes/data.php';
 
 $user = current_user();
 if (!$user) {
     header('Location: login.php');
     exit;
 }
-
-$products = get_products();
 ?>
 <html>
 <head>
-<title>Products</title>
+<title>Order Success</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,23 +19,17 @@ $products = get_products();
 <a href="index.php">Apple Market</a>
 <a href="index.php">Home</a>
 <a href="products.php">Products</a>
-<a href="cart.php">Cart</a>
+<a href="cart.php">Cart (0)</a>
 <span>Hi, <?php echo $user['name']; ?></span>
 <a href="logout.php">Logout</a>
 </div>
 </header>
 <div class="container">
-<h1>All Products</h1>
-<div class="grid">
-<?php foreach ($products as $product): ?>
-<div class="card">
-<img src="<?php echo $product['image']; ?>">
-<h3><?php echo $product['name']; ?></h3>
-<p><?php echo $product['description']; ?></p>
-<p>₹<?php echo $product['base_price']; ?></p>
-<a href="product.php?id=<?php echo $product['id']; ?>">View</a>
-</div>
-<?php endforeach; ?>
+<div class="success-message">
+<h1>Order Placed Successfully!</h1>
+<p>Thank you for your purchase.</p>
+<p>Your order will be delivered soon.</p>
+<a href="products.php"><button>Continue Shopping</button></a>
 </div>
 </div>
 </body>

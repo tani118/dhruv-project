@@ -1,7 +1,5 @@
 <?php
-session_start();
-$_SESSION = [];
-session_destroy();
+require_once 'includes/auth.php';
+logout_user();
 header('Location: login.php');
 exit;
-?>

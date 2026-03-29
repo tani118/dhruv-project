@@ -27,12 +27,12 @@ foreach ($_SESSION['cart'] as $item) {
 <html>
 <head>
 <title>Cart</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 <header>
 <div class="container">
-<img src="apple-logo.svg" width="20" style="vertical-align: middle;">
+<img src="assets/images/apple-logo.svg" width="20" style="vertical-align: middle;">
 <a href="index.php">Apple Market</a>
 <a href="index.php">Home</a>
 <a href="products.php">Products</a>

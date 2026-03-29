@@ -15,7 +15,7 @@ function get_products()
             ],
             'warranty' => ['No Warranty', '1 Year AppleCare', '2 Year AppleCare'],
             'warranty_prices' => [0, 12900, 19900],
-            'image' => 'iphone.jpg'
+            'image' => 'assets/images/iphone.jpg'
         ],
         'ipad' => [
             'id' => 'ipad',
@@ -29,7 +29,7 @@ function get_products()
             ],
             'warranty' => ['No Warranty', '1 Year AppleCare', '2 Year AppleCare'],
             'warranty_prices' => [0, 9900, 14900],
-            'image' => 'ipad.jpg'
+            'image' => 'assets/images/ipad.jpg'
         ],
         'macbook' => [
             'id' => 'macbook',
@@ -44,7 +44,7 @@ function get_products()
             ],
             'warranty' => ['No Warranty', '1 Year AppleCare', '3 Year AppleCare'],
             'warranty_prices' => [0, 24900, 34900],
-            'image' => 'macbook.jpg'
+            'image' => 'assets/images/macbook.jpg'
         ],
         'airpods' => [
             'id' => 'airpods',
@@ -57,7 +57,7 @@ function get_products()
             ],
             'warranty' => ['No Warranty', '1 Year AppleCare'],
             'warranty_prices' => [0, 4900],
-            'image' => 'airpods.jpg'
+            'image' => 'assets/images/airpods.jpg'
         ]
     ];
 }
